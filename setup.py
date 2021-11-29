@@ -2,8 +2,12 @@ from setuptools import setup, find_packages
 import codecs
 import os
 
+here = os.path.abspath(os.path.dirname(__file__))
 
-VERSION = '0.0.3'
+with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
+    long_description = "\n" + fh.read()
+
+VERSION = '0.0.4'
 DESCRIPTION = 'Latest Cyber/Hacker News'
 LONG_DESCRIPTION = 'A package that provides you Latest Cyber/Hacker News from website using Web-Scraping.'
 
