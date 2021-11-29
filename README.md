@@ -53,4 +53,6 @@ news.privacy() # Return's Latest news only related to Privacy
 news.crypto() # Return's Latest news only related to Crypto
 
 news.cloud() # Return's Latest news only related to Cloud
+
+news.tech() # Return's Latest news only related to Technology
 ```
