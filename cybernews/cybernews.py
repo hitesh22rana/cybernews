@@ -111,7 +111,7 @@ class CyberNews:
     def security(self):
 
         # Security HackerNews Website and Tags
-        security_type = {'https://cybernews.com/security/' : 'h3.heading.heading_size_4'}
+        security_type = {'https://cybernews.com/security/' : 'h3.heading.heading_size_4' , 'https://telecom.economictimes.indiatimes.com/tag/hacking' : '.descBx h3 a'}
 
         news_data = []
 
@@ -180,6 +180,26 @@ class CyberNews:
             response = requests.get(url , timeout=10)
             soup = BeautifulSoup(response.text, 'lxml')
             news_links = soup.select(cloud_type[key])
+                
+            for data in news_links:
+                news_data.append(data.text.strip())
+            
+        return news_data
+
+
+    # Technology News
+    def tech(self):
+
+        # Tecchnology HackerNews Website and Tags 
+        tech_type = {'https://telecom.economictimes.indiatimes.com/tag/digitalindia' : '.descBx h3 a'}
+
+        news_data = []
+
+        for key in tech_type:
+            url = key
+            response = requests.get(url , timeout=10)
+            soup = BeautifulSoup(response.text, 'lxml')
+            news_links = soup.select(tech_type[key])
                 
             for data in news_links:
                 news_data.append(data.text.strip())
