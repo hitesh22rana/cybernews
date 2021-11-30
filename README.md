@@ -5,17 +5,14 @@ Developed by GhoulBond (c) 2021<br><br>
 
 <h2>Setup</h2>
 
-``
-For Window Users
-``
+
+<h3>For Window Users</h3>
 
 ```python
 pip install cybernews 
 ```
 
-``
-For Linux/Mac Users
-``
+<h3>For Linux/Mac Users</h3>
 
 ```python
 pip3 install cybernews
