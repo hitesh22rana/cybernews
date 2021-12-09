@@ -52,4 +52,18 @@ news.crypto() # Returns Latest news only related to Crypto
 news.cloud() # Returns Latest news only related to Cloud
 
 news.tech() # Returns Latest news only related to Technology
+
+news.iot() # Returns Latest news only related to Internet of Things
+
+news.bigData() # Returns Latest news only related to BigData
+
+news.business() # Returns Latest news only related to Business
+
+news.mobility() # Returns Latest news only related to Mobility
+
+news.research() # Returns Latest news only related to Research
+
+news.corporate() # Returns Latest news only related to Corporate
+
+news.socialMedia() # Returns Latest news only related to Social Media
 ```
