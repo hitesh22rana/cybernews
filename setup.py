@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '0.0.8'
+VERSION = '0.0.9'
 DESCRIPTION = 'Latest Cyber and Hacking News'
 LONG_DESCRIPTION = 'A package that provides you Latest Cyber and Hacking News from websites using Web-Scraping.'
 
