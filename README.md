@@ -1,12 +1,13 @@
 <h1>cybernews</h1>
 A package that provides you Latest Cyber and Hacking News from Websites using Web-Scraping.
 <h2>Features :-</h2>
-<ul>
-    <li>News Headlines</li>
-    <li>Full News</li>
-    <li>News Article URL</li>
-    <li>News Image</li>
-</ul>
+
+```
+ News Headlines
+ Full News
+ News Article URL
+ News Image
+```
 <br>
 Developed by GhoulBond (c) 2021<br><br>
 
