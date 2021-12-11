@@ -1,9 +1,12 @@
 <h1>cybernews</h1>
 A package and an API that provides you Latest Cyber and Hacking News from websites using Web-Scraping.
 
-``
-Public REST API :- https://cyber-news-api.herokuapp.com/
-``
+<br>
+<h2>Public REST API</h2>
+
+```
+https://cyber-news-api.herokuapp.com/
+```
 
 <h2>Features :-</h2>
 
