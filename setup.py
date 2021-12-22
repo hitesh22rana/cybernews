@@ -7,9 +7,9 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 DESCRIPTION = 'Latest Cyber and Hacking News'
-LONG_DESCRIPTION = 'A package and an API that provides you Latest Cyber and Hacking News from websites using Web-Scraping.'
+LONG_DESCRIPTION = 'Python package and API that provides Latest Cyber and Hacking News from various websites using Web-Scraping.'
 
 # Setting up
 setup(
@@ -22,7 +22,7 @@ setup(
     long_description=long_description,
     packages=find_packages(),
     install_requires=['bs4', 'requests', 'lxml'],
-    keywords=['python', 'web scraping', 'news', 'cyber news', 'hacker news' , 'hacking' , 'cyber' , 'free' , 'open source'],
+    keywords=['python', 'web scraping', 'news', 'cyber news', 'hacker news' , 'hacking' , 'cyber' , 'free' , 'open source' , 'latest news' , 'project' , 'api' , 'REST-API'],
     classifiers=[
         "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
