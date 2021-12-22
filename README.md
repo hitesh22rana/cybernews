@@ -1,5 +1,5 @@
 <h1>cybernews</h1>
-A package and an API that provides you Latest Cyber and Hacking News from websites using Web-Scraping.
+A Package and an API that provides you Latest Cyber and Hacking News from various websites using Web-Scraping.
 
 <br>
 <h2>Public REST API</h2>
@@ -13,6 +13,7 @@ https://cyber-news-api.herokuapp.com/
 
 ```
  News Headlines
+ News Author
  Full News
  News Article URL
  News Image
@@ -47,40 +48,23 @@ news = cybernews.CyberNews() #Instance is created
 ```python
 from cybernews import cybernews
 news = cybernews.CyberNews() #Instance is created
-
-# Return type of all functions is list
-
-news.basic() # Returns all Latest basic cyber news
-
-news.dataBreach() # Returns Latest news only related to Data Breach
-
-news.cyberAttack() # Returns Latest news only related to Cyber Attack
-
-news.vulnerability() # Returns Latest news only related to Vulnerabilities
-
-news.malware() # Returns Latest news only related to Malware
-
-news.security() # Returns Latest news only related to Security
-
-news.privacy() # Returns Latest news only related to Privacy
-
-news.crypto() # Returns Latest news only related to Crypto
-
-news.cloud() # Returns Latest news only related to Cloud
-
-news.tech() # Returns Latest news only related to Technology
-
-news.iot() # Returns Latest news only related to Internet of Things
-
-news.bigData() # Returns Latest news only related to BigData
-
-news.business() # Returns Latest news only related to Business
-
-news.mobility() # Returns Latest news only related to Mobility
-
-news.research() # Returns Latest news only related to Research
-
-news.corporate() # Returns Latest news only related to Corporate
-
-news.socialMedia() # Returns Latest news only related to Social Media
 ```
+| S.No. | Operation          | Functions          | API                                                |
+|-------|--------------------|--------------------|----------------------------------------------------|
+| 1     | Basic News         | news.basic()       | https://cyber-news-api.herokuapp.com/basic         |
+| 2     | Data Breach News   | news.dataBreach()  | https://cyber-news-api.herokuapp.com/dataBreach    |
+| 3     | Cyber Attack News  | news.cyberAttack() | https://cyber-news-api.herokuapp.com/cyberAttack   |
+| 4     | Vulnerability News | news.vulnerability | https://cyber-news-api.herokuapp.com/vulnerability |
+| 5     | Malware News       | news.malware()     | https://cyber-news-api.herokuapp.com/malware       |
+| 6     | Security News      | news.security()    | https://cyber-news-api.herokuapp.com/security      |
+| 7     | Privacy News       | news.privacy()     | https://cyber-news-api.herokuapp.com/privacy       |
+| 8     | Crypto News        | news.crypto()      | https://cyber-news-api.herokuapp.com/crypto        |
+| 9     | Cloud News         | news.cloud()       | https://cyber-news-api.herokuapp.com/cloud         |
+| 10    | Tech News          | news.tech()        | https://cyber-news-api.herokuapp.com/tech          |
+| 11    | IOT News           | news.iot()         | https://cyber-news-api.herokuapp.com/iot           |
+| 12    | Big Data News      | news.bigData()     | https://cyber-news-api.herokuapp.com/bigData       |
+| 13    | Business News      | news.business()    | https://cyber-news-api.herokuapp.com/business      |
+| 14    | Mobility News      | news.mobility()    | https://cyber-news-api.herokuapp.com/mobility      |
+| 15    | Research News      | news.research()    | https://cyber-news-api.herokuapp.com/research      |
+| 16    | Corporate News     | news.corporate()   | https://cyber-news-api.herokuapp.com/corporate     |
+| 17    | Social Media News  | news.socialMedia() | https://cyber-news-api.herokuapp.com/socialMedia   |
