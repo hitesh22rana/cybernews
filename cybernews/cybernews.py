@@ -2,13 +2,15 @@ from bs4 import BeautifulSoup
 import requests
 import lxml
 from random import shuffle
+import re
 
+# Session For Performance
 session = requests.session()
 
 class CyberNews:    
 
     # Headers For Performance
-    headers = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36' , 'Content-Type': 'application/json; charset=utf-8'}
+    _headers = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36' , 'Content-Type': 'application/json; charset=utf-8'}
 
     # Basic News
     def basic(self):
@@ -25,7 +27,7 @@ class CyberNews:
         for basic_news in basic_news_type:
             for key in basic_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(basic_news[key]['headlines'])
                 news_author = soup.select(basic_news[key]['author'])
@@ -36,7 +38,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -44,7 +46,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
                 
-        shuffle(news_data)
         return news_data
 
 
@@ -61,7 +62,7 @@ class CyberNews:
         for data_breach_news in data_breach_news_type:
             for key in data_breach_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(data_breach_news[key]['headlines'])
                 news_author = soup.select(data_breach_news[key]['author'])
@@ -72,7 +73,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -80,7 +81,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
             
-        shuffle(news_data)
         return news_data
 
 
@@ -97,7 +97,7 @@ class CyberNews:
         for cyber_attack_news in cyber_attack_news_type:
             for key in cyber_attack_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(cyber_attack_news[key]['headlines'])
                 news_author = soup.select(cyber_attack_news[key]['author'])
@@ -108,7 +108,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -116,7 +116,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
             
-        shuffle(news_data)
         return news_data
 
 
@@ -133,7 +132,7 @@ class CyberNews:
         for vulnerability_news in vulnerability_news_type:
             for key in vulnerability_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(vulnerability_news[key]['headlines'])
                 news_author = soup.select(vulnerability_news[key]['author'])
@@ -144,7 +143,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -152,7 +151,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
                 
-        shuffle(news_data)
         return news_data
 
 
@@ -169,7 +167,7 @@ class CyberNews:
         for malware_news in malware_news_type:
             for key in malware_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(malware_news[key]['headlines'])
                 news_author = soup.select(malware_news[key]['author'])
@@ -180,7 +178,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -188,7 +186,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
             
-        shuffle(news_data)
         return news_data
 
 
@@ -207,7 +204,7 @@ class CyberNews:
         for security_news in security_news_type:
             for key in security_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(security_news[key]['headlines'])
                 news_author = soup.select(security_news[key]['author'])
@@ -218,7 +215,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -226,7 +223,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
                 
-        shuffle(news_data)
         return news_data
 
 
@@ -243,7 +239,7 @@ class CyberNews:
         for privacy_news in privacy_news_type:
             for key in privacy_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(privacy_news[key]['headlines'])
                 news_author = soup.select(privacy_news[key]['author'])
@@ -254,7 +250,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -262,7 +258,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
             
-        shuffle(news_data)
         return news_data
 
     
@@ -279,7 +274,7 @@ class CyberNews:
         for crypto_news in crypto_news_type:
             for key in crypto_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(crypto_news[key]['headlines'])
                 news_author = soup.select(crypto_news[key]['author'])
@@ -290,7 +285,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -298,7 +293,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
             
-        shuffle(news_data)
         return news_data
 
 
@@ -316,7 +310,7 @@ class CyberNews:
         for cloud_news in cloud_news_type:      
             for key in cloud_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(cloud_news[key]['headlines'])
                 news_author = soup.select(cloud_news[key]['author'])
@@ -327,7 +321,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -336,7 +330,6 @@ class CyberNews:
                     news_data.append(complete_news)
 
             
-        shuffle(news_data)
         return news_data
 
 
@@ -354,7 +347,7 @@ class CyberNews:
         for tech_news in tech_news_type:
             for key in tech_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(tech_news[key]['headlines'])
                 news_author = soup.select(tech_news[key]['author'])
@@ -365,7 +358,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -374,7 +367,6 @@ class CyberNews:
                     news_data.append(complete_news)
 
             
-        shuffle(news_data)
         return news_data
 
     # IOT News
@@ -390,7 +382,7 @@ class CyberNews:
         for iot_news in iot_news_type:
             for key in iot_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(iot_news[key]['headlines'])
                 news_author = soup.select(iot_news[key]['author'])
@@ -401,7 +393,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -409,7 +401,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
 
-        shuffle(news_data)
         return news_data
 
     # Big Data News
@@ -426,7 +417,7 @@ class CyberNews:
         for bigData_news in bigData_news_type:
             for key in bigData_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(bigData_news[key]['headlines'])
                 news_author = soup.select(bigData_news[key]['author'])
@@ -437,7 +428,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -445,7 +436,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
 
-        shuffle(news_data)
         return news_data
 
     # Business Analytics News
@@ -461,7 +451,7 @@ class CyberNews:
         for business_news in business_news_type:
             for key in business_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(business_news[key]['headlines'])
                 news_author = soup.select(business_news[key]['author'])
@@ -472,7 +462,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -480,7 +470,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
 
-        shuffle(news_data)
         return news_data
 
     # Mobility News
@@ -496,7 +485,7 @@ class CyberNews:
         for mobility_news in mobility_news_type:
             for key in mobility_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(mobility_news[key]['headlines'])
                 news_author = soup.select(mobility_news[key]['author'])
@@ -507,7 +496,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -515,7 +504,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
 
-        shuffle(news_data)
         return news_data
 
     # Research News
@@ -531,7 +519,7 @@ class CyberNews:
         for research_news in research_news_type:
             for key in research_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(research_news[key]['headlines'])
                 news_author = soup.select(research_news[key]['author'])
@@ -542,7 +530,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -550,7 +538,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
 
-        shuffle(news_data)
         return news_data 
 
     # Corporate News
@@ -566,7 +553,7 @@ class CyberNews:
         for corporate_news in corporate_news_type:
             for key in corporate_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(corporate_news[key]['headlines'])
                 news_author = soup.select(corporate_news[key]['author'])
@@ -577,7 +564,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip(),
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -585,7 +572,6 @@ class CyberNews:
 
                     news_data.append(complete_news)
                     
-        shuffle(news_data)
         return news_data            
 
 
@@ -602,7 +588,7 @@ class CyberNews:
         for social_news in social_news_type:
             for key in social_news:
                 url = key
-                response = session.get(url , timeout=10 , headers=self.headers)
+                response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
                 news_headlines = soup.select(social_news[key]['headlines'])
                 news_author = soup.select(social_news[key]['author'])
@@ -613,7 +599,7 @@ class CyberNews:
                 for index in range(len(news_headlines)):
 
                     complete_news = {'headlines' : news_headlines[index].text.strip() ,
-                                    'author' : news_author[index].text.strip(),
+                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src']
@@ -621,5 +607,4 @@ class CyberNews:
 
                     news_data.append(complete_news)
 
-        shuffle(news_data)
         return news_data
