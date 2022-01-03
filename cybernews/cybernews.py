@@ -1,25 +1,35 @@
 from bs4 import BeautifulSoup
 import requests
 import lxml
-from random import shuffle
 import re
+import uuid
 
 # Session For Performance
 session = requests.session()
 
-class CyberNews:    
-
+class __Performance:
     # Headers For Performance
-    _headers = {'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36' , 'Content-Type': 'application/json; charset=utf-8'}
+    
+    _headers = {
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
+        'Content-Type': 'application/json; charset=utf-8',
+        'server': 'nginx/1.0.4',
+        'x-runtime': '148ms',
+        'etag': '"e1ca502697e5c9317743dc078f67693f"',
+        'Access-Control-Allow-Credentials': 'true',
+        'Content-Encoding': 'gzip'
+    }
+
+class CyberNews(__Performance):    
 
     # Basic News
     def basic(self):
 
         # Basic CyberNews Website and Tags
         basic_news_type = [
-           {'https://cio.economictimes.indiatimes.com/news/internet' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}} ,
-           {'https://cybernews.com/news/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link'}} ,
-           {'https://cybernews.com/editorial/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link'}}
+           {'https://cio.economictimes.indiatimes.com/news/internet' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}} ,
+           {'https://cybernews.com/news/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}} ,
+           {'https://cybernews.com/editorial/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}}
         ]
 
         news_data = []
@@ -34,16 +44,20 @@ class CyberNews:
                 news_fullNews = soup.select(basic_news[key]['fullNews'])
                 news_URL = soup.select(basic_news[key]['newsURL'])
                 news_img_URL = soup.select(basic_news[key]['newsImg'])
+                news_date =  soup.select(basic_news[key]['date']) if basic_news[key]['date'] != None else ''
    
-                for index in range(len(news_headlines)):
+                for index in range(len(news_headlines)): 
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
-
+                    
                     news_data.append(complete_news)
                 
         return news_data
@@ -54,7 +68,7 @@ class CyberNews:
 
         # Data Breach CyberNews Website and Tags
         data_breach_news_type = [
-            {'https://thehackernews.com/search/label/data%20breach' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link'}}
+            {'https://thehackernews.com/search/label/data%20breach' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link' , 'date' : '.item-label'}}
         ]
 
         news_data = []
@@ -69,14 +83,18 @@ class CyberNews:
                 news_fullNews = soup.select(data_breach_news[key]['fullNews'])
                 news_URL = soup.select(data_breach_news[key]['newsURL'])
                 news_img_URL = soup.select(data_breach_news[key]['newsImg'])
+                news_date =  soup.select(data_breach_news[key]['date']) if data_breach_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -89,7 +107,7 @@ class CyberNews:
 
         # Cyber Attack CyberNews Website and Tags
         cyber_attack_news_type = [
-            {'https://thehackernews.com/search/label/Cyber%20Attack' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link'}}
+            {'https://thehackernews.com/search/label/Cyber%20Attack' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link' , 'date' : '.item-label'}}
         ]
 
         news_data = []
@@ -104,14 +122,18 @@ class CyberNews:
                 news_fullNews = soup.select(cyber_attack_news[key]['fullNews'])
                 news_URL = soup.select(cyber_attack_news[key]['newsURL'])
                 news_img_URL = soup.select(cyber_attack_news[key]['newsImg'])
+                news_date =  soup.select(cyber_attack_news[key]['date']) if cyber_attack_news[key]['date'] != None else ''
                 
                 for index in range(len(news_headlines)):
-
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -124,7 +146,7 @@ class CyberNews:
 
         # Vulnerabilities CyberNews Website and Tags
         vulnerability_news_type = [
-            {'https://thehackernews.com/search/label/Vulnerability' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link'}}
+            {'https://thehackernews.com/search/label/Vulnerability' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link' , 'date' : '.item-label'}}
         ]
 
         news_data = []
@@ -139,14 +161,18 @@ class CyberNews:
                 news_fullNews = soup.select(vulnerability_news[key]['fullNews'])
                 news_URL = soup.select(vulnerability_news[key]['newsURL'])
                 news_img_URL = soup.select(vulnerability_news[key]['newsImg'])
+                news_date =  soup.select(vulnerability_news[key]['date']) if vulnerability_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -159,8 +185,8 @@ class CyberNews:
 
         # Malware CyberNews Website and Tags
         malware_news_type = [
-            {'https://thehackernews.com/search/label/Malware' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link'}}
-    ]
+            {'https://thehackernews.com/search/label/Malware' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link' , 'date' : '.item-label'}}
+        ]
 
         news_data = []
         
@@ -174,14 +200,18 @@ class CyberNews:
                 news_fullNews = soup.select(malware_news[key]['fullNews'])
                 news_URL = soup.select(malware_news[key]['newsURL'])
                 news_img_URL = soup.select(malware_news[key]['newsImg'])
+                news_date =  soup.select(malware_news[key]['date']) if malware_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -194,9 +224,9 @@ class CyberNews:
 
         # Security CyberNews Website and Tags
         security_news_type = [
-            {'https://cybernews.com/security/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link'}} , 
-            {'https://telecom.economictimes.indiatimes.com/tag/hacking' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' ,'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}} ,
-            {'https://cio.economictimes.indiatimes.com/news/digital-security' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+            {'https://cybernews.com/security/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}} , 
+            {'https://telecom.economictimes.indiatimes.com/tag/hacking' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' ,'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}} ,
+            {'https://cio.economictimes.indiatimes.com/news/digital-security' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -211,14 +241,18 @@ class CyberNews:
                 news_fullNews = soup.select(security_news[key]['fullNews'])
                 news_URL = soup.select(security_news[key]['newsURL'])
                 news_img_URL = soup.select(security_news[key]['newsImg'])
+                news_date =  soup.select(security_news[key]['date']) if security_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {   
+                                    '_id' : uuid.uuid4(),    
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -231,7 +265,7 @@ class CyberNews:
 
         # Privacy CyberNews Website and Tags 
         privacy_news_type = [
-            {'https://cybernews.com/privacy/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link'}}
+            {'https://cybernews.com/privacy/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}}
         ]
 
         news_data = []
@@ -246,14 +280,18 @@ class CyberNews:
                 news_fullNews = soup.select(privacy_news[key]['fullNews'])
                 news_URL = soup.select(privacy_news[key]['newsURL'])
                 news_img_URL = soup.select(privacy_news[key]['newsImg'])
+                news_date =  soup.select(privacy_news[key]['date']) if privacy_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -266,7 +304,7 @@ class CyberNews:
 
         # Crypto CyberNews Website and Tags 
         crypto_news_type = [
-            {'https://cybernews.com/crypto/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link'}}
+            {'https://cybernews.com/crypto/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}}
         ]
 
         news_data = []
@@ -281,14 +319,18 @@ class CyberNews:
                 news_fullNews = soup.select(crypto_news[key]['fullNews'])
                 news_URL = soup.select(crypto_news[key]['newsURL'])
                 news_img_URL = soup.select(crypto_news[key]['newsImg'])
+                news_date =  soup.select(crypto_news[key]['date']) if crypto_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -301,8 +343,8 @@ class CyberNews:
 
         # Cloud CyberNews Website and Tags 
         cloud_news_type = [
-            {'https://cybernews.com/cloud/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link'}} ,
-            {'https://cio.economictimes.indiatimes.com/news/cloud-computing' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+            {'https://cybernews.com/cloud/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}} ,
+            {'https://cio.economictimes.indiatimes.com/news/cloud-computing' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -317,14 +359,18 @@ class CyberNews:
                 news_fullNews = soup.select(cloud_news[key]['fullNews'])
                 news_URL = soup.select(cloud_news[key]['newsURL'])
                 news_img_URL = soup.select(cloud_news[key]['newsImg'])
+                news_date =  soup.select(cloud_news[key]['date']) if cloud_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -338,8 +384,8 @@ class CyberNews:
 
         # Technology CyberNews Website and Tags 
         tech_news_type = [
-            {'https://telecom.economictimes.indiatimes.com/tag/digitalindia' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}} ,
-            {'https://cio.economictimes.indiatimes.com/tag/next+gen+tech' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+            {'https://telecom.economictimes.indiatimes.com/tag/digitalindia' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}} ,
+            {'https://cio.economictimes.indiatimes.com/tag/next+gen+tech' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -354,14 +400,18 @@ class CyberNews:
                 news_fullNews = soup.select(tech_news[key]['fullNews'])
                 news_URL = soup.select(tech_news[key]['newsURL'])
                 news_img_URL = soup.select(tech_news[key]['newsImg'])
+                news_date =  soup.select(tech_news[key]['date']) if tech_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -374,7 +424,7 @@ class CyberNews:
 
         # IOT CyberNews Website and Tags 
         iot_news_type = [
-            {'https://cio.economictimes.indiatimes.com/news/internet-of-things' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+            {'https://cio.economictimes.indiatimes.com/news/internet-of-things' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -389,14 +439,18 @@ class CyberNews:
                 news_fullNews = soup.select(iot_news[key]['fullNews'])
                 news_URL = soup.select(iot_news[key]['newsURL'])
                 news_img_URL = soup.select(iot_news[key]['newsImg'])
+                news_date =  soup.select(iot_news[key]['date']) if iot_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -408,8 +462,8 @@ class CyberNews:
 
         # Big Data CyberNews Website and Tags 
         bigData_news_type = [
-            {'https://cio.economictimes.indiatimes.com/news/big-data' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}} , 
-            {'https://cio.economictimes.indiatimes.com/news/data-center' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+            {'https://cio.economictimes.indiatimes.com/news/big-data' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}} , 
+            {'https://cio.economictimes.indiatimes.com/news/data-center' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -424,14 +478,18 @@ class CyberNews:
                 news_fullNews = soup.select(bigData_news[key]['fullNews'])
                 news_URL = soup.select(bigData_news[key]['newsURL'])
                 news_img_URL = soup.select(bigData_news[key]['newsImg'])
+                news_date =  soup.select(bigData_news[key]['date']) if bigData_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -443,7 +501,7 @@ class CyberNews:
 
         # Business Analytics CyberNews Website and Tags 
         business_news_type = [
-            {'https://cio.economictimes.indiatimes.com/news/business-analytics' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+            {'https://cio.economictimes.indiatimes.com/news/business-analytics' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -458,14 +516,18 @@ class CyberNews:
                 news_fullNews = soup.select(business_news[key]['fullNews'])
                 news_URL = soup.select(business_news[key]['newsURL'])
                 news_img_URL = soup.select(business_news[key]['newsImg'])
+                news_date =  soup.select(business_news[key]['date']) if business_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -477,7 +539,7 @@ class CyberNews:
 
         # Mobility CyberNews Website and Tags 
         mobility_news_type = [
-            {'https://cio.economictimes.indiatimes.com/news/mobility' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+            {'https://cio.economictimes.indiatimes.com/news/mobility' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -492,14 +554,18 @@ class CyberNews:
                 news_fullNews = soup.select(mobility_news[key]['fullNews'])
                 news_URL = soup.select(mobility_news[key]['newsURL'])
                 news_img_URL = soup.select(mobility_news[key]['newsImg'])
+                news_date =  soup.select(mobility_news[key]['date']) if mobility_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -511,7 +577,7 @@ class CyberNews:
 
         # Research CyberNews Website and Tags 
         research_news_type = [{'https://cio.economictimes.indiatimes.com/tag/research' : 
-                {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+                {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -526,14 +592,18 @@ class CyberNews:
                 news_fullNews = soup.select(research_news[key]['fullNews'])
                 news_URL = soup.select(research_news[key]['newsURL'])
                 news_img_URL = soup.select(research_news[key]['newsImg'])
+                news_date =  soup.select(research_news[key]['date']) if research_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -545,7 +615,7 @@ class CyberNews:
 
         # Corporate CyberNews Website and Tags 
         corporate_news_type = [{'https://cio.economictimes.indiatimes.com/news/corporate-news' : 
-                {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+                {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -560,14 +630,18 @@ class CyberNews:
                 news_fullNews = soup.select(corporate_news[key]['fullNews'])
                 news_URL = soup.select(corporate_news[key]['newsURL'])
                 news_img_URL = soup.select(corporate_news[key]['newsImg'])
+                news_date =  soup.select(corporate_news[key]['date']) if corporate_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip(),
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip(),
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
@@ -580,7 +654,7 @@ class CyberNews:
 
        # Social Media CyberNews Website and Tags 
         social_news_type = [{'https://cio.economictimes.indiatimes.com/news/social-media' : 
-            {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a'}}
+            {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
         news_data = []
@@ -595,14 +669,18 @@ class CyberNews:
                 news_fullNews = soup.select(social_news[key]['fullNews'])
                 news_URL = soup.select(social_news[key]['newsURL'])
                 news_img_URL = soup.select(social_news[key]['newsImg'])
+                news_date =  soup.select(social_news[key]['date']) if social_news[key]['date'] != None else ''
 
                 for index in range(len(news_headlines)):
 
-                    complete_news = {'headlines' : news_headlines[index].text.strip() ,
+                    complete_news = {
+                                    '_id' : uuid.uuid4(),
+                                    'headlines' : news_headlines[index].text.strip() ,
                                     'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src']
+                                    'newsImgURL' : news_img_URL[index]['data-src'],
+                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
                     }
 
                     news_data.append(complete_news)
