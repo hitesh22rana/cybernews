@@ -17,6 +17,7 @@ https://cyber-news-api.herokuapp.com/
  Full News
  News Article URL
  News Image
+ News Date
 ```
 <br>
 Developed by GhoulBond (c) 2021<br><br>
