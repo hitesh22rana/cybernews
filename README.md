@@ -45,27 +45,113 @@ news = cybernews.CyberNews() #Instance is created
 ```
 
 <h2>All Functionalities</h2>
-
-``` 
- ___________________________________________________________________________________________________________
-|| S.No. || Operation          || Functions          || API                                                ||
-||-------||--------------------||--------------------||----------------------------------------------------||
-|| 1     || Basic News         || news.basic()       || https://cyber-news-api.herokuapp.com/basic         ||
-|| 2     || Data Breach News   || news.dataBreach()  || https://cyber-news-api.herokuapp.com/dataBreach    ||
-|| 3     || Cyber Attack News  || news.cyberAttack() || https://cyber-news-api.herokuapp.com/cyberAttack   ||
-|| 4     || Vulnerability News || news.vulnerability || https://cyber-news-api.herokuapp.com/vulnerability ||
-|| 5     || Malware News       || news.malware()     || https://cyber-news-api.herokuapp.com/malware       ||
-|| 6     || Security News      || news.security()    || https://cyber-news-api.herokuapp.com/security      ||
-|| 7     || Privacy News       || news.privacy()     || https://cyber-news-api.herokuapp.com/privacy       ||
-|| 8     || Crypto News        || news.crypto()      || https://cyber-news-api.herokuapp.com/crypto        ||
-|| 9     || Cloud News         || news.cloud()       || https://cyber-news-api.herokuapp.com/cloud         ||
-|| 10    || Tech News          || news.tech()        || https://cyber-news-api.herokuapp.com/tech          ||
-|| 11    || IOT News           || news.iot()         || https://cyber-news-api.herokuapp.com/iot           ||
-|| 12    || Big Data News      || news.bigData()     || https://cyber-news-api.herokuapp.com/bigData       ||
-|| 13    || Business News      || news.business()    || https://cyber-news-api.herokuapp.com/business      ||
-|| 14    || Mobility News      || news.mobility()    || https://cyber-news-api.herokuapp.com/mobility      ||
-|| 15    || Research News      || news.research()    || https://cyber-news-api.herokuapp.com/research      ||
-|| 16    || Corporate News     || news.corporate()   || https://cyber-news-api.herokuapp.com/corporate     ||
-|| 17    || Social Media News  || news.socialMedia() || https://cyber-news-api.herokuapp.com/socialMedia   ||
--------------------------------------------------------------------------------------------------------------
-```
+<table>
+  <tr>
+    <th>S.No.</th>
+    <th>Operation</th>
+    <th>Functions</th>
+    <th>API</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>Basic News</td>
+    <td>news.basic()</td>
+    <td>https://cyber-news-api.herokuapp.com/basic</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>Data Breach News</td>
+    <td>news.dataBreach()</td>
+    <td>https://cyber-news-api.herokuapp.com/dataBreach</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>Cyber Attack News</td>
+    <td>news.cyberAttack()</td>
+    <td>https://cyber-news-api.herokuapp.com/cyberAttack</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>Vulnerability News</td>
+    <td>news.vulnerability()</td>
+    <td>https://cyber-news-api.herokuapp.com/vulnerability</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>Malware News</td>
+    <td>news.malware()</td>
+    <td>https://cyber-news-api.herokuapp.com/malware</td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td>Security News</td>
+    <td>news.security()</td>
+    <td>https://cyber-news-api.herokuapp.com/security</td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td>Privacy News</td>
+    <td>news.privacy()</td>
+    <td>https://cyber-news-api.herokuapp.com/privacy</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td>Crypto News</td>
+    <td>news.crypto()</td>
+    <td>https://cyber-news-api.herokuapp.com/crypto</td>
+  </tr>
+  <tr>
+    <td>9</td>
+    <td>Cloud News</td>
+    <td>news.cloud()</td>
+    <td>https://cyber-news-api.herokuapp.com/cloud</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td>Tech News</td>
+    <td>news.tech()</td>
+    <td>https://cyber-news-api.herokuapp.com/tech</td>
+  </tr>
+  <tr>
+    <td>11</td>
+    <td>IOT News</td>
+    <td>news.iot()</td>
+    <td>https://cyber-news-api.herokuapp.com/iot</td>
+  </tr>
+  <tr>
+    <td>12</td>
+    <td>Big Data News</td>
+    <td>news.bigData()</td>
+    <td>https://cyber-news-api.herokuapp.com/bigData</td>
+  </tr>
+  <tr>
+    <td>13</td>
+    <td>Business News</td>
+    <td>news.business()</td>
+    <td>https://cyber-news-api.herokuapp.com/business</td>
+  </tr>
+  <tr>
+    <td>14</td>
+    <td>Mobility News</td>
+    <td>news.mobility()</td>
+    <td>https://cyber-news-api.herokuapp.com/mobility</td>
+  </tr>
+  <tr>
+    <td>15</td>
+    <td>Research News</td>
+    <td>news.research()</td>
+    <td>https://cyber-news-api.herokuapp.com/research</td>
+  </tr>
+  <tr>
+    <td>16</td>
+    <td>Corporate News</td>
+    <td>news.corporate()</td>
+    <td>https://cyber-news-api.herokuapp.com/corporate</td>
+  </tr>
+  <tr>
+    <td>17</td>
+    <td>Social Media News</td>
+    <td>news.socialMedia()</td>
+    <td>https://cyber-news-api.herokuapp.com/socialMedia</td>
+  </tr>
+</table>
