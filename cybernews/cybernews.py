@@ -4,12 +4,13 @@ import lxml
 import re
 import uuid
 
-# Session For Performance
+"""Global Session For Performance"""
 session = requests.session()
 
+"""Performance Class for better and fast extracting of data"""
 class __Performance:
-    # Headers For Performance
-    
+
+    """Headers For Performance"""
     _headers = {
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
         'Content-Type': 'application/json; charset=utf-8',
@@ -20,669 +21,283 @@ class __Performance:
         'Content-Encoding': 'gzip'
     }
 
-class CyberNews(__Performance):    
 
-    # Basic News
-    def basic(self):
+"""Class for Sorting News According to the date"""
+class __SortingNews:
 
-        # Basic CyberNews Website and Tags
-        basic_news_type = [
-           {'https://cio.economictimes.indiatimes.com/news/internet' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}} ,
-           {'https://cybernews.com/news/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}} ,
-           {'https://cybernews.com/editorial/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}}
-        ]
+    """Months Dictionary"""
+    _months = {
+        'january' : '01',
+        'february' : '02',
+        'march' : '03',
+        'april' : '04',
+        'may' : '05',
+        'june' : '06',
+        'july' : '07',
+        'august' : '08',
+        'september' : '09',
+        'october' : '10',
+        'november' : '11',
+        'december' : '12'
+    }
 
-        news_data = []
+    """Ordering Date"""
+    def _orderingDate(self,individualNews):
+        if(individualNews == 'N/A'):
+            return 1
+        individualNews = individualNews.lower().replace(',','')
+        individualNews = individualNews.split(' ')
+
+        if(individualNews[0].isnumeric()):
+            return int(individualNews[2] + self._months[individualNews[1]] + individualNews[0])
         
-        for basic_news in basic_news_type:
-            for key in basic_news:
+        return int(individualNews[2] + self._months[individualNews[0]] + individualNews[1])
+
+    """Ordering News By Latest Date"""
+    def _orderingNews(self , news):
+
+        data = sorted(news, key = lambda individualNews: individualNews['_id'] , reverse=True)
+        
+        data = self._orderingID(data)
+        return data
+
+    """Giving UUID as _id for each news so that id is distinct"""
+    def _orderingID(self , news):
+
+        for individualNews in news:
+            individualNews['_id'] = uuid.uuid4()
+
+        return news
+
+
+"""Class for Exception Handling and Extracting data out of complex strings"""
+class __Extracting(__Performance , __SortingNews):
+
+    """Extracting Author Name"""
+    def _authorNameExtractor(self , name):
+        return re.sub(r'\ue804','',name)
+
+    """Extracting NewsDate"""
+    def _newsDateExtractor(self , date , news_date):
+        return re.sub(r'\ue804.+','',re.sub(r'\ue802','',date)) if news_date != '' else 'N/A'
+
+    """Extracting Data Using Tags"""
+    def _dataExtractor(self , newsHeaders):
+        
+        """News Data List"""
+        news_data = []
+
+        for news in newsHeaders:
+            for key in news:
                 url = key
                 response = session.get(url , timeout=10 , headers=self._headers)
                 soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(basic_news[key]['headlines'])
-                news_author = soup.select(basic_news[key]['author'])
-                news_fullNews = soup.select(basic_news[key]['fullNews'])
-                news_URL = soup.select(basic_news[key]['newsURL'])
-                news_img_URL = soup.select(basic_news[key]['newsImg'])
-                news_date =  soup.select(basic_news[key]['date']) if basic_news[key]['date'] != None else ''
-   
+                news_headlines = soup.select(news[key]['headlines'])
+                news_author = soup.select(news[key]['author'])
+                news_fullNews = soup.select(news[key]['fullNews'])
+                news_URL = soup.select(news[key]['newsURL'])
+                news_img_URL = soup.select(news[key]['newsImg'])
+                news_date =  soup.select(news[key]['date']) if news[key]['date'] != None else ''
+
+
                 for index in range(len(news_headlines)): 
 
+                    """Extracting newsDate"""
+                    newsDate = self._newsDateExtractor(news_date[index].text.strip() , news_date) if news_date != '' else 'N/A'
+
                     complete_news = {
-                                    '_id' : uuid.uuid4(),
+
+                                    '_id' : self._orderingDate(newsDate),
                                     'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
+                                    'author' : self._authorNameExtractor(news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
                                     'newsURL' : news_URL[index]['href'],
                                     'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
+                                    'newsDate' : newsDate
                     }
                     
                     news_data.append(complete_news)
-                
-        return news_data
+
+        return self._orderingNews(news_data)
 
 
-    # Data Breach News
+"""Main Class for Extracting/Scraping Data"""
+class CyberNews(__Extracting):    
+
+    """Basic News"""
+    def basic(self):
+
+        """Basic CyberNews Website and Tags"""
+
+        basic_attack_news_type = [
+           {'https://cybernews.com/news/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}} ,
+           {'https://cybernews.com/editorial/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}},
+           {'https://cio.economictimes.indiatimes.com/news/internet' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
+        ]
+
+        return self._dataExtractor(basic_attack_news_type)
+        
+    """Data Breach News"""
     def dataBreach(self):
 
-        # Data Breach CyberNews Website and Tags
+        """Data Breach CyberNews Website and Tags"""
         data_breach_news_type = [
             {'https://thehackernews.com/search/label/data%20breach' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link' , 'date' : '.item-label'}}
         ]
 
-        news_data = []
+        return self._dataExtractor(data_breach_news_type)
         
-        for data_breach_news in data_breach_news_type:
-            for key in data_breach_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(data_breach_news[key]['headlines'])
-                news_author = soup.select(data_breach_news[key]['author'])
-                news_fullNews = soup.select(data_breach_news[key]['fullNews'])
-                news_URL = soup.select(data_breach_news[key]['newsURL'])
-                news_img_URL = soup.select(data_breach_news[key]['newsImg'])
-                news_date =  soup.select(data_breach_news[key]['date']) if data_breach_news[key]['date'] != None else ''
-
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-            
-        return news_data
-
-
-    #  Cyber Attack News
+    """Cyber Attack News"""
     def cyberAttack(self):
 
-        # Cyber Attack CyberNews Website and Tags
+        """Cyber Attack CyberNews Website and Tags"""
         cyber_attack_news_type = [
             {'https://thehackernews.com/search/label/Cyber%20Attack' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link' , 'date' : '.item-label'}}
         ]
 
-        news_data = []
-        
-        for cyber_attack_news in cyber_attack_news_type:
-            for key in cyber_attack_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(cyber_attack_news[key]['headlines'])
-                news_author = soup.select(cyber_attack_news[key]['author'])
-                news_fullNews = soup.select(cyber_attack_news[key]['fullNews'])
-                news_URL = soup.select(cyber_attack_news[key]['newsURL'])
-                news_img_URL = soup.select(cyber_attack_news[key]['newsImg'])
-                news_date =  soup.select(cyber_attack_news[key]['date']) if cyber_attack_news[key]['date'] != None else ''
-                
-                for index in range(len(news_headlines)):
-                    
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
+        return self._dataExtractor(cyber_attack_news_type)
 
-                    news_data.append(complete_news)
-            
-        return news_data
-
-
-    # Vulnerability News
+    """Vulnerability News"""
     def vulnerability(self):
 
-        # Vulnerabilities CyberNews Website and Tags
+        """Vulnerabilities CyberNews Website and Tags"""
         vulnerability_news_type = [
             {'https://thehackernews.com/search/label/Vulnerability' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link' , 'date' : '.item-label'}}
         ]
 
-        news_data = []
-        
-        for vulnerability_news in vulnerability_news_type:
-            for key in vulnerability_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(vulnerability_news[key]['headlines'])
-                news_author = soup.select(vulnerability_news[key]['author'])
-                news_fullNews = soup.select(vulnerability_news[key]['fullNews'])
-                news_URL = soup.select(vulnerability_news[key]['newsURL'])
-                news_img_URL = soup.select(vulnerability_news[key]['newsImg'])
-                news_date =  soup.select(vulnerability_news[key]['date']) if vulnerability_news[key]['date'] != None else ''
+        return self._dataExtractor(vulnerability_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-                
-        return news_data
-
-
-    # Malware News
+    """Malware News"""
     def malware(self):
 
-        # Malware CyberNews Website and Tags
+        """Malware CyberNews Website and Tags"""
         malware_news_type = [
             {'https://thehackernews.com/search/label/Malware' : {'headlines' : 'h2.home-title' , 'author' : '.item-label span' , 'fullNews' : '.home-desc' , 'newsImg' : '.img-ratio img' , 'newsURL' : 'a.story-link' , 'date' : '.item-label'}}
         ]
 
-        news_data = []
-        
-        for malware_news in malware_news_type:
-            for key in malware_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(malware_news[key]['headlines'])
-                news_author = soup.select(malware_news[key]['author'])
-                news_fullNews = soup.select(malware_news[key]['fullNews'])
-                news_URL = soup.select(malware_news[key]['newsURL'])
-                news_img_URL = soup.select(malware_news[key]['newsImg'])
-                news_date =  soup.select(malware_news[key]['date']) if malware_news[key]['date'] != None else ''
+        return self._dataExtractor(malware_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-            
-        return news_data
-
-
-    # Security News
+    """Security News"""
     def security(self):
 
-        # Security CyberNews Website and Tags
+        """Security CyberNews Website and Tags"""
         security_news_type = [
             {'https://cybernews.com/security/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}} , 
             {'https://telecom.economictimes.indiatimes.com/tag/hacking' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' ,'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}} ,
             {'https://cio.economictimes.indiatimes.com/news/digital-security' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
-        
-        for security_news in security_news_type:
-            for key in security_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(security_news[key]['headlines'])
-                news_author = soup.select(security_news[key]['author'])
-                news_fullNews = soup.select(security_news[key]['fullNews'])
-                news_URL = soup.select(security_news[key]['newsURL'])
-                news_img_URL = soup.select(security_news[key]['newsImg'])
-                news_date =  soup.select(security_news[key]['date']) if security_news[key]['date'] != None else ''
+        return self._dataExtractor(security_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {   
-                                    '_id' : uuid.uuid4(),    
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-                
-        return news_data
-
-
-    # Privacy News
+    """Privacy News"""
     def privacy(self):
 
-        # Privacy CyberNews Website and Tags 
+        """Privacy CyberNews Website and Tags"""
         privacy_news_type = [
             {'https://cybernews.com/privacy/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}}
         ]
 
-        news_data = []
-        
-        for privacy_news in privacy_news_type:
-            for key in privacy_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(privacy_news[key]['headlines'])
-                news_author = soup.select(privacy_news[key]['author'])
-                news_fullNews = soup.select(privacy_news[key]['fullNews'])
-                news_URL = soup.select(privacy_news[key]['newsURL'])
-                news_img_URL = soup.select(privacy_news[key]['newsImg'])
-                news_date =  soup.select(privacy_news[key]['date']) if privacy_news[key]['date'] != None else ''
-
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-            
-        return news_data
-
+        return self._dataExtractor(privacy_news_type)
     
-    # Crypto News
+    """Crypto News"""
     def crypto(self):
 
-        # Crypto CyberNews Website and Tags 
+        """Crypto CyberNews Website and Tags """
         crypto_news_type = [
             {'https://cybernews.com/crypto/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}}
         ]
 
-        news_data = []
-        
-        for crypto_news in crypto_news_type:
-            for key in crypto_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(crypto_news[key]['headlines'])
-                news_author = soup.select(crypto_news[key]['author'])
-                news_fullNews = soup.select(crypto_news[key]['fullNews'])
-                news_URL = soup.select(crypto_news[key]['newsURL'])
-                news_img_URL = soup.select(crypto_news[key]['newsImg'])
-                news_date =  soup.select(crypto_news[key]['date']) if crypto_news[key]['date'] != None else ''
+        return self._dataExtractor(crypto_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-            
-        return news_data
-
-
-    # Cloud News
+    """Cloud News"""
     def cloud(self):
 
-        # Cloud CyberNews Website and Tags 
+        """Cloud CyberNews Website and Tags""" 
         cloud_news_type = [
             {'https://cybernews.com/cloud/' : {'headlines' : 'h3.heading.heading_size_4' , 'author' : 'a.link.text.text_color_important' , 'fullNews' : '.text.text_size_small.text_line-height_big' , 'newsImg' : '.cells__item a img' , 'newsURL' : '.cells__item.cells__item_width a.link' , 'date' : 'time.meta-item.prefix.cells__item'}} ,
             {'https://cio.economictimes.indiatimes.com/news/cloud-computing' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
+        return self._dataExtractor(cloud_news_type)
 
-        for cloud_news in cloud_news_type:      
-            for key in cloud_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(cloud_news[key]['headlines'])
-                news_author = soup.select(cloud_news[key]['author'])
-                news_fullNews = soup.select(cloud_news[key]['fullNews'])
-                news_URL = soup.select(cloud_news[key]['newsURL'])
-                news_img_URL = soup.select(cloud_news[key]['newsImg'])
-                news_date =  soup.select(cloud_news[key]['date']) if cloud_news[key]['date'] != None else ''
-
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-
-            
-        return news_data
-
-
-    # Technology News
+    """Technology News"""
     def tech(self):
 
-        # Technology CyberNews Website and Tags 
+        """Technology CyberNews Website and Tags """
         tech_news_type = [
             {'https://telecom.economictimes.indiatimes.com/tag/digitalindia' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}} ,
             {'https://cio.economictimes.indiatimes.com/tag/next+gen+tech' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
-        
-        for tech_news in tech_news_type:
-            for key in tech_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(tech_news[key]['headlines'])
-                news_author = soup.select(tech_news[key]['author'])
-                news_fullNews = soup.select(tech_news[key]['fullNews'])
-                news_URL = soup.select(tech_news[key]['newsURL'])
-                news_img_URL = soup.select(tech_news[key]['newsImg'])
-                news_date =  soup.select(tech_news[key]['date']) if tech_news[key]['date'] != None else ''
+        return self._dataExtractor(tech_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-
-            
-        return news_data
-
-    # IOT News
+    """IOT News"""
     def iot(self):
 
-        # IOT CyberNews Website and Tags 
+        """IOT CyberNews Website and Tags""" 
         iot_news_type = [
             {'https://cio.economictimes.indiatimes.com/news/internet-of-things' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
-        
-        for iot_news in iot_news_type:
-            for key in iot_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(iot_news[key]['headlines'])
-                news_author = soup.select(iot_news[key]['author'])
-                news_fullNews = soup.select(iot_news[key]['fullNews'])
-                news_URL = soup.select(iot_news[key]['newsURL'])
-                news_img_URL = soup.select(iot_news[key]['newsImg'])
-                news_date =  soup.select(iot_news[key]['date']) if iot_news[key]['date'] != None else ''
+        return self._dataExtractor(iot_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-
-        return news_data
-
-    # Big Data News
+    """Big Data News"""
     def bigData(self):
 
-        # Big Data CyberNews Website and Tags 
+        """Big Data CyberNews Website and Tags""" 
         bigData_news_type = [
             {'https://cio.economictimes.indiatimes.com/news/big-data' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}} , 
             {'https://cio.economictimes.indiatimes.com/news/data-center' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
-        
-        for bigData_news in bigData_news_type:
-            for key in bigData_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(bigData_news[key]['headlines'])
-                news_author = soup.select(bigData_news[key]['author'])
-                news_fullNews = soup.select(bigData_news[key]['fullNews'])
-                news_URL = soup.select(bigData_news[key]['newsURL'])
-                news_img_URL = soup.select(bigData_news[key]['newsImg'])
-                news_date =  soup.select(bigData_news[key]['date']) if bigData_news[key]['date'] != None else ''
+        return self._dataExtractor(bigData_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-
-        return news_data
-
-    # Business Analytics News
+    """Business Analytics News"""
     def business(self):
 
-        # Business Analytics CyberNews Website and Tags 
+        """Business Analytics CyberNews Website and Tags""" 
         business_news_type = [
             {'https://cio.economictimes.indiatimes.com/news/business-analytics' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
-        
-        for business_news in business_news_type:
-            for key in business_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(business_news[key]['headlines'])
-                news_author = soup.select(business_news[key]['author'])
-                news_fullNews = soup.select(business_news[key]['fullNews'])
-                news_URL = soup.select(business_news[key]['newsURL'])
-                news_img_URL = soup.select(business_news[key]['newsImg'])
-                news_date =  soup.select(business_news[key]['date']) if business_news[key]['date'] != None else ''
+        return self._dataExtractor(business_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-
-        return news_data
-
-    # Mobility News
+    """Mobility News"""
     def mobility(self):
 
-        # Mobility CyberNews Website and Tags 
+        """Mobility CyberNews Website and Tags""" 
         mobility_news_type = [
             {'https://cio.economictimes.indiatimes.com/news/mobility' : {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
-        
-        for mobility_news in mobility_news_type:
-            for key in mobility_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(mobility_news[key]['headlines'])
-                news_author = soup.select(mobility_news[key]['author'])
-                news_fullNews = soup.select(mobility_news[key]['fullNews'])
-                news_URL = soup.select(mobility_news[key]['newsURL'])
-                news_img_URL = soup.select(mobility_news[key]['newsImg'])
-                news_date =  soup.select(mobility_news[key]['date']) if mobility_news[key]['date'] != None else ''
+        return self._dataExtractor(mobility_news_type)
 
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-
-        return news_data
-
-    # Research News
+    """Research News"""
     def research(self):
 
-        # Research CyberNews Website and Tags 
+        """Research CyberNews Website and Tags"""
         research_news_type = [{'https://cio.economictimes.indiatimes.com/tag/research' : 
                 {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
+        return self._dataExtractor(research_news_type)
 
-        for research_news in research_news_type:
-            for key in research_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(research_news[key]['headlines'])
-                news_author = soup.select(research_news[key]['author'])
-                news_fullNews = soup.select(research_news[key]['fullNews'])
-                news_URL = soup.select(research_news[key]['newsURL'])
-                news_img_URL = soup.select(research_news[key]['newsImg'])
-                news_date =  soup.select(research_news[key]['date']) if research_news[key]['date'] != None else ''
-
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-
-        return news_data 
-
-    # Corporate News
+    """Corporate News"""
     def corporate(self):
 
-        # Corporate CyberNews Website and Tags 
+        """Corporate CyberNews Website and Tags""" 
         corporate_news_type = [{'https://cio.economictimes.indiatimes.com/news/corporate-news' : 
                 {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
+        return self._dataExtractor(corporate_news_type)
 
-        for corporate_news in corporate_news_type:
-            for key in corporate_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(corporate_news[key]['headlines'])
-                news_author = soup.select(corporate_news[key]['author'])
-                news_fullNews = soup.select(corporate_news[key]['fullNews'])
-                news_URL = soup.select(corporate_news[key]['newsURL'])
-                news_img_URL = soup.select(corporate_news[key]['newsImg'])
-                news_date =  soup.select(corporate_news[key]['date']) if corporate_news[key]['date'] != None else ''
-
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip(),
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-                    
-        return news_data            
-
-
-    # Social Media News
+    """Social Media News"""
     def socialMedia(self):
 
-       # Social Media CyberNews Website and Tags 
+        """Social Media CyberNews Website and Tags""" 
         social_news_type = [{'https://cio.economictimes.indiatimes.com/news/social-media' : 
             {'headlines' : '.descBx h3 a' , 'author' : '.metaTx' , 'fullNews' : '.descBx p' , 'newsImg' : 'figure.avtar a img' , 'newsURL' : '.descBx a' , 'date' : None}}
         ]
 
-        news_data = []
-
-        for social_news in social_news_type:
-            for key in social_news:
-                url = key
-                response = session.get(url , timeout=10 , headers=self._headers)
-                soup = BeautifulSoup(response.text , 'lxml')
-                news_headlines = soup.select(social_news[key]['headlines'])
-                news_author = soup.select(social_news[key]['author'])
-                news_fullNews = soup.select(social_news[key]['fullNews'])
-                news_URL = soup.select(social_news[key]['newsURL'])
-                news_img_URL = soup.select(social_news[key]['newsImg'])
-                news_date =  soup.select(social_news[key]['date']) if social_news[key]['date'] != None else ''
-
-                for index in range(len(news_headlines)):
-
-                    complete_news = {
-                                    '_id' : uuid.uuid4(),
-                                    'headlines' : news_headlines[index].text.strip() ,
-                                    'author' : re.sub(r'\ue804','',news_author[index].text.strip()),
-                                    'fullNews' : news_fullNews[index].text.strip(),
-                                    'newsURL' : news_URL[index]['href'],
-                                    'newsImgURL' : news_img_URL[index]['data-src'],
-                                    'newsDate' : re.sub(r'\ue804.+','',re.sub(r'\ue802','',news_date[index].text.strip())) if news_date != '' else 'N/A'
-                    }
-
-                    news_data.append(complete_news)
-
-        return news_data
+        return self._dataExtractor(social_news_type)
