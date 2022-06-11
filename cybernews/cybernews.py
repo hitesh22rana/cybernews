@@ -56,7 +56,7 @@ class __SortingNews:
     """Ordering News By Latest Date"""
     def _orderingNews(self , news):
 
-        data = sorted(news, key = lambda individualNews: individualNews['_id'] , reverse=True)
+        data = sorted(news, key = lambda individualNews: individualNews['id'] , reverse=True)
         
         data = self._orderingID(data)
         return data
@@ -65,7 +65,7 @@ class __SortingNews:
     def _orderingID(self , news):
 
         for individualNews in news:
-            individualNews['_id'] = uuid.uuid4()
+            individualNews['id'] = uuid.uuid4().int
 
         return news
 
@@ -107,7 +107,7 @@ class __Extracting(__Performance , __SortingNews):
 
                     complete_news = {
 
-                                    '_id' : self._orderingDate(newsDate),
+                                    'id' : self._orderingDate(newsDate),
                                     'headlines' : news_headlines[index].text.strip(),
                                     'author' : self._authorNameExtractor(news_author[index].text.strip()),
                                     'fullNews' : news_fullNews[index].text.strip(),
